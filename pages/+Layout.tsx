@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen font-sans">
+    <div className="flex flex-col min-h-screen font-sans bg-dark text-white">
       <Navbar />
       <main className="flex-grow">
         {children}
@@ -18,8 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pageContext = usePageContext();
-  const { urlPathname } = pageContext;
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,10 +30,37 @@ function Navbar() {
 
   const navLinks = [
     { name: "Ana Sayfa", href: "/" },
-    { name: "Kurumsal", href: "/#kurumsal" },
-    { name: "Ürünler", href: "/#urunler" },
-    { name: "Hizmetler", href: "/#hizmetler" },
-    { name: "İletişim", href: "/#iletisim" },
+    { 
+      name: "Kurumsal", 
+      href: "/kurumsal",
+      dropdown: [
+        { name: "Kurumsal", href: "/kurumsal" },
+        { name: "Tarihçe", href: "/kurumsal/tarihce" },
+        { name: "Kurucumuz", href: "/kurumsal/kurucumuz" },
+        { name: "Ekibimiz", href: "/kurumsal/ekibimiz" },
+      ]
+    },
+    { 
+      name: "Ürünlerimiz", 
+      href: "/urunler/bombe",
+      dropdown: [
+        { name: "Bombe", href: "/urunler/bombe" },
+        { name: "Küre Tank", href: "/urunler/kure-tank" },
+        { name: "Isıl İşlem", href: "/urunler/isil-islem" },
+      ]
+    },
+    { 
+      name: "Kalite", 
+      href: "/kalite",
+      dropdown: [
+        { name: "Kalite Kontrol", href: "/kalite" },
+        { name: "Sertifikalar", href: "/sertifikalar" },
+        { name: "Politikalar", href: "/politikalar" },
+      ]
+    },
+    { name: "Projelerimiz", href: "/projeler" },
+    { name: "Kariyer", href: "/kariyer" },
+    { name: "İletişim", href: "/iletisim" },
   ];
 
   return (
@@ -53,23 +79,49 @@ function Navbar() {
         </a>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden lg:flex items-center space-x-6">
           {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className={`text-sm font-semibold uppercase tracking-wider transition-colors hover:text-brand ${
-                isScrolled ? "text-white" : "text-white drop-shadow-md"
-              }`}
+            <div 
+              key={link.name} 
+              className="relative group"
+              onMouseEnter={() => setActiveDropdown(link.name)}
+              onMouseLeave={() => setActiveDropdown(null)}
             >
-              {link.name}
-            </a>
+              <a
+                href={link.href}
+                className={`text-[13px] font-bold uppercase tracking-widest transition-colors hover:text-brand flex items-center gap-1 ${
+                  isScrolled ? "text-white" : "text-white drop-shadow-md"
+                }`}
+              >
+                {link.name}
+                {link.dropdown && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
+              </a>
+
+              {link.dropdown && (
+                <div className={`absolute left-0 mt-2 w-48 bg-darker border border-white/10 py-2 transition-all duration-300 ${
+                  activeDropdown === link.name ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
+                }`}>
+                  {link.dropdown.map((item) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className="block px-4 py-2 text-xs font-bold uppercase tracking-widest text-white hover:bg-brand hover:text-white transition-colors"
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
           <a 
-            href="/#iletisim" 
-            className="bg-brand hover:bg-brand-hover text-white px-6 py-3 rounded-sm text-sm font-bold uppercase tracking-widest transition-all inline-flex items-center gap-2"
+            href="/iletisim" 
+            className="bg-brand hover:bg-brand-hover text-white px-6 py-3 rounded-sm text-xs font-bold uppercase tracking-widest transition-all inline-flex items-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
             Teklif Alın
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </a>
@@ -77,7 +129,7 @@ function Navbar() {
 
         {/* Mobile Toggle */}
         <button 
-          className="md:hidden text-white"
+          className="lg:hidden text-white"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,18 +145,33 @@ function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-darker border-t border-white/10 overflow-hidden"
+            className="lg:hidden bg-darker border-t border-white/10 overflow-hidden"
           >
             <div className="flex flex-col p-6 space-y-4">
               {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-white text-lg font-medium uppercase"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.name}
-                </a>
+                <div key={link.name}>
+                  <a
+                    href={link.href}
+                    className="text-white text-lg font-bold uppercase tracking-wider block"
+                    onClick={() => !link.dropdown && setIsMobileMenuOpen(false)}
+                  >
+                    {link.name}
+                  </a>
+                  {link.dropdown && (
+                    <div className="ml-4 mt-2 flex flex-col space-y-2 border-l border-brand/30 pl-4">
+                      {link.dropdown.map((item) => (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          className="text-neutral-400 text-sm font-bold uppercase tracking-widest hover:text-brand"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {item.name}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </motion.div>
@@ -127,29 +194,28 @@ function Footer() {
           </div>
           
           <div>
-            <h4 className="text-brand font-bold uppercase tracking-widest mb-6">Ürünler</h4>
-            <ul className="space-y-3 text-neutral-400 text-sm">
-              <li><a href="#" className="hover:text-brand transition-colors">Eliptik Bombe</a></li>
-              <li><a href="#" className="hover:text-brand transition-colors">Torisferik Bombe</a></li>
-              <li><a href="#" className="hover:text-brand transition-colors">Konik Bombe</a></li>
-              <li><a href="#" className="hover:text-brand transition-colors">Küre Tank</a></li>
+            <h4 className="text-brand font-bold uppercase tracking-widest mb-6">Hızlı Erişim</h4>
+            <ul className="space-y-3 text-neutral-400 text-sm font-bold uppercase tracking-widest">
+              <li><a href="/kurumsal" className="hover:text-brand transition-colors">Kurumsal</a></li>
+              <li><a href="/urunler/bombe" className="hover:text-brand transition-colors">Ürünlerimiz</a></li>
+              <li><a href="/projeler" className="hover:text-brand transition-colors">Projelerimiz</a></li>
+              <li><a href="/kariyer" className="hover:text-brand transition-colors">Kariyer</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-brand font-bold uppercase tracking-widest mb-6">Kurumsal</h4>
-            <ul className="space-y-3 text-neutral-400 text-sm">
-              <li><a href="#" className="hover:text-brand transition-colors">Hakkımızda</a></li>
-              <li><a href="#" className="hover:text-brand transition-colors">Tarihçe</a></li>
-              <li><a href="#" className="hover:text-brand transition-colors">Sertifikalar</a></li>
-              <li><a href="#" className="hover:text-brand transition-colors">Kariyer</a></li>
+            <h4 className="text-brand font-bold uppercase tracking-widest mb-6">Yasal</h4>
+            <ul className="space-y-3 text-neutral-400 text-sm font-bold uppercase tracking-widest">
+              <li><a href="/politikalar/kvkk" className="hover:text-brand transition-colors">KVKK</a></li>
+              <li><a href="/politikalar" className="hover:text-brand transition-colors">Politikalarımız</a></li>
+              <li><a href="/politikalar/etik" className="hover:text-brand transition-colors">Etik Kurallar</a></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-brand font-bold uppercase tracking-widest mb-6">İletişim</h4>
             <address className="not-italic text-neutral-400 text-sm space-y-3">
-              <p>Marmara Geri Dönüşümcüler San. Sit. Şekerpınar Mah. Ayçiçek Sk. No: 1 Çayırova / Kocaeli</p>
+              <p>Dilovası OSB 4.Kısım Ceyhan Cad. No:25 Gebze/Kocaeli</p>
               <p>T: +90 (262) 724 92 92</p>
               <p>E: info@kartalbombe.com.tr</p>
             </address>
@@ -158,11 +224,6 @@ function Footer() {
         
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-neutral-500 text-xs">
           <p>© 2026 Kartal Bombe & Basınçlı Kaplar Sanayi ve Ticaret A.Ş. Tüm hakları saklıdır.</p>
-          <div className="mt-4 md:mt-0 space-x-6">
-            <a href="#" className="hover:text-white transition-colors">KVKK</a>
-            <a href="#" className="hover:text-white transition-colors">Çerez Politikası</a>
-            <a href="#" className="hover:text-white transition-colors">Yasal Uyarı</a>
-          </div>
         </div>
       </div>
     </footer>
